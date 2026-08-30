@@ -3,14 +3,29 @@
 VRChat 自动绘画脚本 —— 把图片转换为可绘制的笔画轨迹，在 VRChat 画板内通过模拟鼠标自动绘制，还原为线稿画作。
 
 - **框架**：Tauri 2（Rust 后端 + 原生 HTML/CSS/JS 前端，无前端框架、无打包器）
-- **核心管线**：移植自 [VRC-Draw](https://github.com/FlyPig01/VRC-Draw)（MIT）的线稿提取算法
 - **绘制引擎**：SendInput 相对模式模拟鼠标（VRChat 桌面模式唯一正确输入形态）
 - **许可**：MIT
 
 ---
 
+## 项目来源与定位
+
+**声明：本项目是二次开发作品，不是原创算法项目。** 图片→笔画的**核心算法**与**程序原形**均来自两个开源项目，本项目的贡献集中在**用户界面改进与易用性优化**上：
+
+| 上游项目 | 本项目的继承关系 |
+|---|---|
+| [FlyPig01/VRC-Draw](https://github.com/FlyPig01/VRC-Draw)（MIT） | **核心算法移植母本**。线稿提取与绘制路径的核心能力（PS 式多尺度响应、区域分类、拓扑追踪、毛刺/交叉处理、欧拉迹无损优化、贝塞尔拟合、SendInput 鼠标序列等）均为对 VRC-Draw 的 Rust 重写，算法原作者为 FlyPig01 |
+| [cocokoishi/vrchat-drawing-script](https://github.com/cocokoishi/vrchat-drawing-script) | **二次开发原形来源**。早期脚本形态的同类工具，是此项目最早的起点与灵感参照 |
+
+**本项目做了什么**：改进**界面，使其更易于新手使用**——中文界面、新手教程、双主题黑白布局、参数拖动实时预览与自动保存、预设/绘制策略/世界配置档、错误中文提示与故障诊断引导，以及断点续画、区域补画、笔画相册、AI 预处理等面向普通玩家的易用功能（这些功能均建立在上述上游算法与思路之上，不是从零发明的技术）。
+
+> 核心算法与上游一样是对 VRChat 画板绘制能力的利用；本项目不会也不可能比上游在算法上更原创。请尊重上游作者：使用本工具时建议同步为上游项目点星；引用、分发请遵守各上游许可证（VRC-Draw 为 MIT）。
+
+---
+
 ## 目录
 
+- [项目来源与定位](#项目来源与定位)
 - [功能特性](#功能特性)
 - [运行环境](#运行环境)
 - [快速开始](#快速开始)
@@ -245,7 +260,9 @@ cargo build --release
 
 MIT License（见 [LICENSE](./LICENSE)）。
 
-- **线稿管线算法**移植自 [FlyPig01/VRC-Draw](https://github.com/FlyPig01/VRC-Draw)（MIT）——PS 多尺度响应、区域分类、拓扑追踪、欧拉迹优化、贝塞尔拟合等核心算法与其思路
-- **二次开发来源**：[cocokoishi/vrchat-drawing-script](https://github.com/cocokoishi/vrchat-drawing-script)
-- 图标字体：[Iconoir](https://iconoir.com/)（本地 vendor 文件）
-- 教程插画素材为项目原创资源
+本项目为二次开发作品（详见上文「项目来源与定位」），核心算法与程序原形来自：
+
+- **[FlyPig01/VRC-Draw](https://github.com/FlyPig01/VRC-Draw)**（MIT）——线稿管线算法移植母本：PS 多尺度响应、区域分类、拓扑追踪、欧拉迹优化、贝塞尔拟合等核心算法与其思路
+- **[cocokoishi/vrchat-drawing-script](https://github.com/cocokoishi/vrchat-drawing-script)**——二次开发原形来源与早期参考实现
+
+本项目的开发贡献主要在界面与易用性层面（中文界面、新手教程、交互优化、参数预设与断点/区域/相册/AI 等玩家向功能）。图标字体：[Iconoir](https://iconoir.com/)（本地 vendor 文件）；教程插画素材为项目原创资源。
