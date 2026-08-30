@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VRChatDraw</title>
+<link rel="stylesheet" href="vendor/iconoir.css" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="tutorial.css" />
+</head>
+<body>
+<div class="window">
+  <!-- ===================== 自绘标题栏 ===================== -->
+  <div class="titlebar" data-tauri-drag-region>
+    <div class="titlebar-brand" data-tauri-drag-region>
+      <span class="titlebar-app-icon"><i class="iconoir-palette"></i></span>
+      <span>VRChatDraw</span>
+    </div>
+    <div class="window-actions">
+      <button type="button" class="window-action" id="winMin" data-tauri-drag-region="false" title="最小化"><i class="iconoir-minus"></i></button>
+      <button type="button" class="window-action" id="winMax" data-tauri-drag-region="false" title="最大化/还原"><i class="iconoir-select-window"></i></button>
+      <button type="button" class="window-action close" id="winClose" data-tauri-drag-region="false" title="关闭"><i class="iconoir-xmark"></i></button>
+    </div>
+  </div>
+
+  <main class="shell" id="shell">
+    <!-- ===================== 侧栏 ===================== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-mark"><i class="iconoir-palette"></i></div>
+        <div class="brand-copy">
+          <div class="brand-title">VRChatDraw</div>
+        </div>
+        <div class="brand-actions">
+          <button type="button" class="icon-button compact" data-tooltip="相册" id="btnGallery" aria-label="相册"><i class="iconoir-media-image-list"></i></button>
+          <button type="button" class="icon-button compact" data-tooltip="设置" id="btnSettings"><i class="iconoir-settings"></i></button>
+        </div>
+      </div>
+
+      <nav class="workflow" aria-label="工作流程">
+        <div class="workflow-grid">
+          <button type="button" class="workflow-step" data-scroll="sourceSection" id="stepSource"><span class="step-icon"><i class="iconoir-media-image"></i></span><span>图片</span></button>
+          <button type="button" class="workflow-step" data-scroll="processSection" id="stepProcess"><span class="step-icon"><i class="iconoir-magic-wand"></i></span><span>处理</span></button>
+          <button type="button" class="workflow-step" data-scroll="drawSection" id="stepDraw"><span class="step-icon"><i class="iconoir-edit-pencil"></i></span><span>绘制</span></button>
+        </div>
+      </nav>
+
+      <div class="panel-scroll">
+        <!-- 1. 图片来源 -->
+        <section class="section" id="sourceSection">
+          <button type="button" class="section-header" aria-expanded="true">
+            <span class="section-symbol"><i class="iconoir-media-image"></i></span>
+            <span class="section-heading"><span class="section-name">图片来源</span></span>
+            <i class="iconoir-nav-arrow-down section-chevron"></i>
+          </button>
+          <div class="section-body">
+            <div class="source-card">
+              <div class="thumb-wrap" id="thumbWrap">
+                <img class="source-thumb" id="sourceThumb" alt="图片缩略图" />
+              </div>
+              <div class="source-info">
+                <div class="source-name" id="fileName">未选择图片</div>
+              </div>
+              <button type="button" class="small-action" id="chooseFile"><i class="iconoir-folder"></i><span>选择</span></button>
+            </div>
+            <button type="button" class="primary-action" id="primaryAction" title="生成笔画后，在 VRChat 中按 F9 开始绘制（从头）、F10 暂停、F8 断点续画、Shift+F9 边界预演">
+              <span class="primary-main"><i class="iconoir-spark" id="primaryIcon"></i><span id="primaryLabel">生成笔画</span></span>
+              <span class="primary-hotkeys">
+                <span class="mini-key"><span class="mini-kbd">F9</span>开始绘制</span>
+                <span class="mini-sep"></span>
+                <span class="mini-key"><span class="mini-kbd">F10</span>暂停</span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 2. 图像处理 -->
+        <section class="section" id="processSection">
+          <button type="button" class="section-header" aria-expanded="true">
+            <span class="section-symbol"><i class="iconoir-magic-wand"></i></span>
+            <span class="section-heading"><span class="section-name">图像处理</span></span>
+            <i class="iconoir-nav-arrow-down section-chevron"></i>
+          </button>
+          <div class="section-body">
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-filter-alt"></i></span>
+                <span class="control-copy"><span class="control-title">简化容差</span><button type="button" class="help-tip" data-help="调高：线条会更简洁、绘制更快，但小细节可能被省略。调低：细节更多，但笔画会变多、绘制更慢。" aria-label="了解简化容差">?</button></span>
+                <span class="value-badge"><input aria-label="简化容差数值" type="text" inputmode="decimal" spellcheck="false" value="1.5" /></span>
+              </div>
+              <input data-key="eps" id="eps" type="range" aria-label="简化容差" min="0.1" max="10" step="0.1" value="1.5" />
+            </div>
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-color-filter"></i></span>
+                <span class="control-copy"><span class="control-title">模糊大小</span><button type="button" class="help-tip" data-help="调高：先把图片变得更平滑，杂点会减少，但细线也可能变淡；数值较高时处理时间会明显变长。调低：保留更多细节，图片有噪点时可能出现杂线。" aria-label="了解模糊大小">?</button></span>
+                <span class="value-badge"><input aria-label="模糊大小数值" type="text" inputmode="decimal" spellcheck="false" value="1" /></span>
+              </div>
+              <input data-key="blur" id="blur" type="range" aria-label="模糊大小" min="1" max="15" step="1" value="1" />
+            </div>
+            <div class="toggle-card">
+              <span class="toggle-card-icon"><i class="iconoir-brain-electricity"></i></span>
+              <span class="toggle-copy"><span class="toggle-title">AI 预处理</span><button type="button" class="help-tip" data-help="开启后会先让 AI 把彩色图片整理成线稿，再在 VRChat 中绘制；适合复杂图片，但需要配置 API，处理时间也会更长。" aria-label="了解 AI 预处理">?</button></span>
+              <button type="button" class="switch" id="aiSwitch" role="switch" aria-checked="false" aria-label="AI 预处理"></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. 绘制参数 -->
+        <section class="section" id="drawSection">
+          <button type="button" class="section-header" aria-expanded="true">
+            <span class="section-symbol"><i class="iconoir-edit-pencil"></i></span>
+            <span class="section-heading"><span class="section-name">绘制参数</span></span>
+            <i class="iconoir-nav-arrow-down section-chevron"></i>
+          </button>
+          <div class="section-body">
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-scanning"></i></span>
+                <span class="control-copy"><span class="control-title">灵敏度</span><button type="button" class="help-tip" data-help="调高：在 VRChat 里画得更大；调低：画得更小。过高可能超出画板，过低会让细节挤在一起。" aria-label="了解灵敏度">?</button></span>
+                <span class="value-badge"><input aria-label="灵敏度数值" type="text" inputmode="decimal" spellcheck="false" value="1.2" /></span>
+              </div>
+              <input data-key="sens" id="sens" type="range" aria-label="灵敏度" min="0.1" max="3" step="0.1" value="1.2" />
+            </div>
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-timer"></i></span>
+                <span class="control-copy"><span class="control-title">点间隔</span><button type="button" class="help-tip" data-help="每次落笔移动至少间隔约一帧，避免 VRChat 把连续移动采样成分离点。调高会更慢、更稳。" aria-label="了解点间隔">?</button></span>
+                <span class="value-badge"><input aria-label="点间隔数值" type="text" inputmode="decimal" spellcheck="false" value="16" /></span>
+              </div>
+              <input data-key="speed" id="speed" type="range" aria-label="点间隔" min="16" max="30" step="1" value="16" />
+            </div>
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-ruler"></i></span>
+                <span class="control-copy"><span class="control-title">最大步长</span><button type="button" class="help-tip" data-help="每帧最多移动的像素量。直线使用设定值，转弯会自动减小步长；范围限制为 1～6，避免跨过笔刷采样。" aria-label="了解最大步长">?</button></span>
+                <span class="value-badge"><input aria-label="最大步长数值" type="text" inputmode="decimal" spellcheck="false" value="4" /></span>
+              </div>
+              <input data-key="step" id="step" type="range" aria-label="最大步长" min="1" max="6" step="1" value="4" />
+            </div>
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-dashboard-speed"></i></span>
+                <span class="control-copy"><span class="control-title">抬笔速度</span><button type="button" class="help-tip" data-help="调高：换下一笔时移动更快；调低：换笔更慢，但更容易看清抬笔移动过程。它不改变落笔后的线条速度。" aria-label="了解抬笔速度">?</button></span>
+                <span class="value-badge"><input aria-label="抬笔速度数值" type="text" inputmode="decimal" spellcheck="false" value="100" /></span>
+              </div>
+              <input data-key="lift" id="lift" type="range" aria-label="抬笔速度" min="10" max="100" step="10" value="100" />
+            </div>
+            <div class="control-row">
+              <div class="control-heading">
+                <span class="control-icon"><i class="iconoir-expand-lines"></i></span>
+                <span class="control-copy"><span class="control-title">垂直拉伸</span><button type="button" class="help-tip" data-help="调高：画面在 VRChat 里变得更高；调低：画面变得更扁。横向大小不会改变。" aria-label="了解垂直拉伸">?</button></span>
+                <span class="value-badge"><input aria-label="垂直拉伸数值" type="text" inputmode="decimal" spellcheck="false" value="1.4" /></span>
+              </div>
+              <input data-key="stretch" id="stretch" type="range" aria-label="垂直拉伸" min="0.5" max="2.5" step="0.1" value="1.4" />
+            </div>
+          </div>
+        </section>
+
+        <div class="sidebar-footer">
+          <div class="footer-state">
+            <span class="footer-state-left"><i class="iconoir-check-circle-solid"></i><span id="footerStateText">参数已同步，可生成笔画</span></span>
+          </div>
+          <div class="progress" id="progress" role="progressbar" aria-label="处理进度"><div class="progress-bar" id="progressBar"></div></div>
+          <div class="footer-tools">
+            <button type="button" class="footer-tool" id="resetButton"><i class="iconoir-refresh"></i><span>重置</span></button>
+            <div class="preset-control" id="presetControl">
+              <button type="button" class="footer-tool" id="presetButton" aria-haspopup="listbox" aria-expanded="false"><i class="iconoir-floppy-disk"></i><span>预设</span><i class="iconoir-nav-arrow-down preset-arrow" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="preset-menu" id="presetMenu" hidden>
+            <div class="preset-menu-head">
+              <div class="preset-menu-title"><strong>参数预设</strong><span id="presetCount">0 个预设</span></div>
+              <button type="button" class="preset-save" id="presetSaveButton"><span class="preset-plus-icon" aria-hidden="true"></span><span>保存当前</span></button>
+            </div>
+            <div class="preset-list" id="presetList" role="listbox" aria-label="参数预设列表"></div>
+            <div class="preset-empty" id="presetEmpty" hidden>还没有保存的预设</div>
+            <div class="preset-menu-divider"></div>
+            <div class="preset-menu-section">
+              <div class="preset-menu-title"><strong>绘制策略</strong><span>不改变线稿几何</span></div>
+              <div class="strategy-row" id="strategyRow">
+                <button type="button" class="strategy-btn" data-strategy="stable" title="更慢更稳，适合长线">稳定</button>
+                <button type="button" class="strategy-btn" data-strategy="standard" title="当前默认节奏">标准</button>
+                <button type="button" class="strategy-btn" data-strategy="fast" title="更快，适合简单线稿">快速</button>
+              </div>
+            </div>
+            <div class="preset-menu-divider"></div>
+            <div class="preset-menu-section">
+              <div class="preset-menu-title"><strong>世界配置档</strong><span id="profileCount">0 个</span></div>
+              <div class="preset-list" id="profileList" role="listbox" aria-label="世界配置档列表"></div>
+              <div class="preset-empty" id="profileEmpty" hidden>还没有配置档</div>
+              <button type="button" class="preset-save profile-save" id="profileSaveButton"><i class="iconoir-floppy-disk"></i><span>保存当前为配置档</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===================== 工作区 ===================== -->
+    <section class="workspace">
+      <div class="toolbar" role="toolbar" aria-label="主工具栏">
+        <button type="button" class="icon-button" id="sidebarToggle" data-tooltip="收起参数面板" aria-label="收起参数面板">
+          <i class="iconoir-sidebar-collapse" id="sidebarToggleIcon"></i>
+        </button>
+        <div class="toolbar-group" id="viewTabs">
+          <button type="button" class="view-button" data-view="original" data-tooltip="查看原图"><i class="iconoir-media-image"></i><span>原图</span></button>
+          <button type="button" class="view-button active" data-view="strokes" data-tooltip="查看线稿笔画"><i class="iconoir-edit-pencil"></i><span>线稿</span></button>
+          <button type="button" class="view-button" data-view="compare" data-tooltip="原图与线稿对照（拖动分割线）"><i class="iconoir-horizontal-split"></i><span>对照</span></button>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <div class="stage-badge" id="stageBadge" hidden><i class="iconoir-view-grid"></i><span>画布 <b id="canvasSize">0 × 0</b></span></div>
+        <div class="stage-badge region-badge" id="regionBadge" hidden>
+          <i class="iconoir-view-grid"></i><span class="region-badge-label">区域补画</span><b id="regionInfo">0/0 笔</b>
+          <button type="button" class="region-badge-clear" id="regionBadgeClear" title="退出区域补画" aria-label="退出区域补画">×</button>
+        </div>
+        <div class="metric"><i class="iconoir-edit-pencil"></i><span>笔画</span><b id="strokeCount">0</b></div>
+        <div class="metric secondary-metric"><i class="iconoir-path-arrow"></i><span>采样点</span><b id="pointCount">0</b></div>
+        <div class="toolbar-divider"></div>
+        <button type="button" class="icon-button compact" id="zoomOut" data-tooltip="缩小" aria-label="缩小"><i class="iconoir-zoom-out"></i></button>
+        <span class="zoom-value" id="zoomValue">100%</span>
+        <button type="button" class="icon-button compact" id="zoomIn" data-tooltip="放大" aria-label="放大"><i class="iconoir-zoom-in"></i></button>
+        <button type="button" class="toolbar-text-button" id="fitButton" data-tooltip="缩放重置为适应窗口" aria-label="缩放重置为适应窗口"><i class="iconoir-expand"></i><span>适应</span></button>
+        <button type="button" class="toolbar-text-button" id="clearButton" data-tooltip="清空画布（图片与笔画）" aria-label="清空画布（图片与笔画）" disabled><i class="iconoir-xmark"></i><span>清空</span></button>
+      </div>
+
+      <div class="stage pan-mode" id="stage">
+        <div class="canvas-transform" id="canvasTransform">
+          <div class="image-frame view-strokes" id="imageFrame">
+            <img class="base-image" id="baseImage" alt="原图预览" />
+            <img class="line-image" id="lineImage" alt="线稿预览" />
+            <div class="compare-line"></div>
+          </div>
+        </div>
+        <div class="crop-box" id="cropBox" hidden>
+          <div class="crop-actions">
+            <button type="button" class="crop-action-btn" id="cropConfirm" title="确认裁剪"><i class="iconoir-check"></i><span>确认</span></button>
+            <button type="button" class="crop-action-btn" id="cropCancel" title="取消裁剪"><i class="iconoir-xmark"></i><span>取消</span></button>
+          </div>
+          <span class="crop-handle"></span><span class="crop-handle"></span><span class="crop-handle"></span><span class="crop-handle"></span>
+        </div>
+        <div class="crop-box region-box" id="regionBox" hidden>
+          <div class="crop-actions">
+            <button type="button" class="crop-action-btn" id="regionConfirm" title="确认区域"><i class="iconoir-check"></i><span>确认</span></button>
+            <button type="button" class="crop-action-btn" id="regionCancel" title="取消区域"><i class="iconoir-xmark"></i><span>取消</span></button>
+          </div>
+        </div>
+        <div class="stage-tools" aria-label="画布工具">
+          <button type="button" class="tool-button active" data-tool="pan" data-tooltip="移动画布" aria-label="移动画布"><i class="iconoir-drag-hand-gesture"></i></button>
+          <button type="button" class="tool-button" data-tool="crop" data-tooltip="裁剪预览" aria-label="裁剪预览"><i class="iconoir-crop"></i></button>
+          <button type="button" class="tool-button" data-tool="region" data-tooltip="区域补画" aria-label="区域补画"><i class="iconoir-view-grid"></i></button>
+          <span class="tool-separator"></span>
+          <button type="button" class="tool-button" data-action="undo" data-tooltip="撤销上一步操作" aria-label="撤销上一步操作"><i class="iconoir-undo"></i></button>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <span class="status-item ready" id="workStatus"><i class="iconoir-check-circle-solid"></i><span>就绪</span></span>
+        <span class="status-item" id="imgSizeStatus"><i class="iconoir-ruler"></i><span>—</span></span>
+        <span class="status-item"><i class="iconoir-zoom-in"></i><span id="statusZoom">100%</span></span>
+        <span class="status-item status-right" id="drawStatus"><i class="iconoir-wifi-off"></i><span>未在绘制</span></span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===================== 设置弹窗 ===================== -->
+<div class="modal-mask" id="modalMask" hidden></div>
+<div class="modal settings-modal" id="settingsModal" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle" tabindex="-1">
+  <div class="modal-top">
+    <div class="modal-heading">
+      <span class="modal-top-icon"><i class="iconoir-settings"></i></span>
+      <span><span class="modal-title" id="settingsTitle">设置</span><span class="modal-subtitle">程序与界面配置</span></span>
+    </div>
+    <span class="settings-save-note"><i class="iconoir-check-circle-solid"></i>即时保存</span>
+    <button type="button" class="icon-button compact panel-close" id="closeSettings"><i class="iconoir-xmark"></i></button>
+  </div>
+  <div class="modal-body settings-body">
+    <nav class="settings-rail" aria-label="设置分类">
+      <div class="settings-rail-kicker">WORKSPACE</div>
+      <div class="settings-rail-title">偏好设置</div>
+      <div class="settings-rail-copy">调整界面、画布与服务连接。</div>
+      <div class="settings-nav-list">
+        <a class="settings-nav-item active" href="#settings-general"><i class="iconoir-settings"></i><span><b>通用</b><small>界面与画布</small></span></a>
+        <a class="settings-nav-item" href="#settings-ai"><i class="iconoir-brain-electricity"></i><span><b>AI 配置</b><small>接口与模型</small></span></a>
+        <a class="settings-nav-item" href="#settings-about"><i class="iconoir-select-window"></i><span><b>关于</b><small>版本与项目</small></span></a>
+      </div>
+      <div class="settings-rail-foot"><i class="iconoir-check-circle-solid"></i><span>修改会自动保存</span></div>
+    </nav>
+
+    <div class="settings-content" id="settingsContent">
+      <section class="modal-sec settings-card" id="settings-general" aria-labelledby="settingsGeneralTitle">
+        <div class="settings-section-head">
+          <span class="settings-section-icon"><i class="iconoir-settings"></i></span>
+          <span><b id="settingsGeneralTitle">通用</b><small>工作区显示与画布偏好</small></span>
+        </div>
+        <div class="settings-preference-list">
+          <div class="settings-option">
+            <div class="settings-option-copy"><b>预览网格</b><small>在画布下方显示棋盘格背景，方便观察透明区域。</small></div>
+            <button type="button" class="switch" id="gridSwitch" role="switch" aria-checked="true" aria-label="预览网格"></button>
+          </div>
+          <div class="settings-option">
+            <div class="settings-option-copy"><b>界面主题</b><small>选择工作台的明暗外观。</small></div>
+            <div class="seg">
+              <button type="button" class="seg-btn" id="themeDark" aria-label="深色主题" aria-pressed="true">深色</button>
+              <button type="button" class="seg-btn" id="themeLight" aria-label="浅色主题" aria-pressed="false">浅色</button>
+            </div>
+          </div>
+          <div class="settings-option">
+            <div class="settings-option-copy"><b>画布底色</b><small>只改变绘图区底色，不影响导出的笔画。</small></div>
+            <div class="seg">
+              <button type="button" class="seg-btn" id="canvasLight" aria-label="白色画布" aria-pressed="true">白色</button>
+              <button type="button" class="seg-btn" id="canvasDark" aria-label="深色画布" aria-pressed="false">深色</button>
+            </div>
+          </div>
+          <div class="settings-option">
+            <div class="settings-option-copy"><b>新手教程</b><small>重新查看软件介绍与快捷键说明。</small></div>
+            <button type="button" class="small-action" id="tutorialReopen"><i class="iconoir-eye"></i><span>查看教程</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="modal-sec settings-card" id="settings-ai" aria-labelledby="settingsAiTitle">
+        <div class="settings-section-head">
+          <span class="settings-section-icon"><i class="iconoir-brain-electricity"></i></span>
+          <span><b id="settingsAiTitle">AI 配置</b><small>连接兼容 OpenAI 接口的图像服务</small></span>
+        </div>
+        <div class="settings-field-grid">
+          <div class="setting-field setting-field-wide">
+            <span class="setting-field-label">API 地址</span>
+            <span class="setting-field-help">服务的基础 URL</span>
+            <span class="setting-field-inline">
+              <input type="text" id="aiBase" aria-label="AI 接口地址" inputmode="url" spellcheck="false" placeholder="https://api.openai.com/v1" />
+              <div class="ds-select" id="aiEndpointSelect" data-value="images/edits">
+                <button type="button" class="ds-select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="生图接口后缀">
+                  <span class="ds-select-value">images/edits</span>
+                  <i class="iconoir-nav-arrow-down ds-select-arrow"></i>
+                </button>
+                <div class="ds-select-panel" role="listbox" hidden>
+                  <button type="button" class="ds-select-item" role="option" data-value="images/edits"><span>images/edits</span><i class="iconoir-check ds-select-check"></i></button>
+                  <button type="button" class="ds-select-item" role="option" data-value="chat/completions"><span>chat/completions</span><i class="iconoir-check ds-select-check"></i></button>
+                </div>
+              </div>
+            </span>
+          </div>
+          <div class="setting-field setting-field-wide">
+            <span class="setting-field-label">API Key</span>
+            <span class="setting-field-help">仅保存在本机配置文件中</span>
+            <span class="setting-field-inline">
+              <input type="password" id="aiKey" aria-label="API Key" autocomplete="off" placeholder="sk-..." />
+              <button type="button" class="inline-icon-btn" id="aiKeyToggle" aria-label="显示/隐藏 Key" title="显示/隐藏 Key"><i class="iconoir-eye"></i></button>
+              <button type="button" class="inline-icon-btn key-clear" id="aiKeyClear" aria-label="清除 API Key" title="清除 API Key"><i class="iconoir-xmark"></i></button>
+            </span>
+          </div>
+          <div class="setting-field setting-field-wide">
+            <span class="setting-field-label">模型</span>
+            <span class="setting-field-help">用于生成线稿的模型名称</span>
+            <span class="setting-field-inline">
+              <span class="ds-combobox" id="aiModelCombobox">
+                <input type="text" id="aiModel" aria-label="AI 模型" spellcheck="false" placeholder="gpt-image-1" />
+                <button type="button" class="ds-combobox-arrow" aria-label="模型列表" title="可用模型列表"><i class="iconoir-nav-arrow-down"></i></button>
+                <span class="ds-select-panel" role="listbox" hidden></span>
+              </span>
+              <button type="button" class="small-action fetch-models" id="fetchModelsBtn" aria-label="获取可用模型"><i class="iconoir-refresh" id="fetchModelsIcon"></i><span>获取模型</span></button>
+            </span>
+          </div>
+        </div>
+        <div class="settings-ai-actions">
+          <button type="button" class="small-action" id="testAiBtn"><i class="iconoir-eye"></i><span>测试连接</span></button>
+          <span id="aiTestResult" class="test-result" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section class="modal-sec settings-card settings-about-card" id="settings-about" aria-labelledby="settingsAboutTitle">
+        <div class="settings-section-head">
+          <span class="settings-section-icon"><i class="iconoir-select-window"></i></span>
+          <span><b id="settingsAboutTitle">关于</b><small>项目与版本信息</small></span>
+        </div>
+        <div class="about-copy">
+          <strong>VRChat 绘画脚本 · v0.1.0</strong>
+          <span>Rust (Tauri 2) 重构版 · 基于 cocokoishi/vrchat-drawing-script 二次开发</span>
+          <a href="#" id="linkGithub" class="link"><i class="iconoir-path-arrow"></i>GitHub 项目主页<i class="iconoir-expand"></i></a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask preset-name-mask" id="presetNameMask" hidden></div>
+<div class="modal preset-name-modal" id="presetNameModal" hidden role="dialog" aria-modal="true" aria-labelledby="presetNameTitle">
+  <div class="modal-top preset-name-top">
+    <div class="modal-heading">
+      <span class="modal-top-icon"><i class="iconoir-floppy-disk"></i></span>
+      <span><span class="modal-title" id="presetNameTitle">保存预设</span><span class="modal-subtitle" id="presetNameSubtitle">为当前参数组合命名</span></span>
+    </div>
+    <button type="button" class="icon-button compact panel-close" id="presetNameClose" aria-label="关闭"><i class="iconoir-xmark"></i></button>
+  </div>
+  <div class="preset-name-body">
+    <label for="presetNameInput">预设名称</label>
+    <input type="text" id="presetNameInput" maxlength="32" spellcheck="false" autocomplete="off" placeholder="例如：细线稿" />
+    <span class="preset-name-hint">同名预设会更新为当前参数。</span>
+  </div>
+  <div class="preset-name-actions">
+    <button type="button" class="preset-name-cancel" id="presetNameCancel">取消</button>
+    <button type="button" class="preset-name-confirm" id="presetNameConfirm"><i class="iconoir-check"></i><span>保存预设</span></button>
+  </div>
+</div>
+
+<div class="modal-mask preset-confirm-mask" id="presetConfirmMask" hidden></div>
+<div class="modal preset-confirm-modal" id="presetConfirmModal" hidden role="dialog" aria-modal="true" aria-labelledby="presetConfirmTitle">
+  <div class="modal-top preset-name-top">
+    <div class="modal-heading">
+      <span class="modal-top-icon"><i class="iconoir-trash"></i></span>
+      <span><span class="modal-title" id="presetConfirmTitle">删除预设</span><span class="modal-subtitle">此操作无法撤销</span></span>
+    </div>
+    <button type="button" class="icon-button compact panel-close" id="presetConfirmClose" aria-label="关闭"><i class="iconoir-xmark"></i></button>
+  </div>
+  <div class="preset-confirm-body"><p id="presetConfirmCopy"></p></div>
+  <div class="preset-name-actions">
+    <button type="button" class="preset-name-cancel" id="presetConfirmCancel">取消</button>
+    <button type="button" class="preset-name-confirm preset-danger-confirm" id="presetConfirmOk"><i class="iconoir-trash"></i><span>删除预设</span></button>
+  </div>
+</div>
+
+<div class="modal-mask gallery-mask" id="galleryMask" hidden></div>
+<div class="modal gallery-modal" id="galleryModal" hidden role="dialog" aria-modal="true" aria-labelledby="galleryTitle" tabindex="-1">
+  <div class="modal-top">
+    <div class="modal-heading">
+      <span class="modal-top-icon"><i class="iconoir-media-image-list"></i></span>
+      <span><span class="modal-title" id="galleryTitle">笔画相册</span><span class="modal-subtitle">按 F9 开始绘制时自动保存的笔画，可随时载入</span></span>
+    </div>
+    <button type="button" class="icon-button compact panel-close" id="galleryClose" aria-label="关闭"><i class="iconoir-xmark"></i></button>
+  </div>
+  <div class="modal-body gallery-body">
+    <div class="gallery-list" id="galleryList"></div>
+    <div class="gallery-empty" id="galleryEmpty" hidden>还没有保存的笔画。生成笔画后按 F9 开始绘制，笔画会自动存入相册。</div>
+  </div>
+</div>
+
+<div class="modal-mask gallery-prompt-mask" id="galleryPromptMask" hidden></div>
+<div class="modal gallery-prompt-modal" id="galleryPromptModal" hidden role="dialog" aria-modal="true" aria-labelledby="galleryPromptTitle" tabindex="-1">
+  <div class="modal-top">
+    <div class="modal-heading">
+      <span class="modal-top-icon"><i class="iconoir-media-image-list"></i></span>
+      <span><span class="modal-title" id="galleryPromptTitle">这张图片已有笔画</span><span class="modal-subtitle" id="galleryPromptSubtitle"></span></span>
+    </div>
+    <button type="button" class="icon-button compact panel-close" id="galleryPromptClose" aria-label="关闭"><i class="iconoir-xmark"></i></button>
+  </div>
+  <div class="gallery-prompt-body">
+    <p id="galleryPromptCopy"></p>
+    <div class="gallery-prompt-list" id="galleryPromptVariants" hidden></div>
+  </div>
+  <div class="gallery-prompt-actions">
+    <button type="button" class="preset-name-cancel" id="galleryPromptRegenerate"><i class="iconoir-refresh"></i><span>重新生成</span></button>
+    <button type="button" class="preset-name-confirm" id="galleryPromptPreview"><i class="iconoir-eye"></i><span>预览笔画</span></button>
+  </div>
+</div>
+
+<div class="modal-mask tutorial-mask" id="tutorialMask" hidden></div>
+<div class="modal tutorial-modal" id="tutorialModal" hidden role="dialog" aria-modal="true" aria-labelledby="tutorialTitle" tabindex="-1">
+  <div class="tutorial-topbar">
+    <div class="tutorial-brandline"><span class="tutorial-brand-mark"><i class="iconoir-palette"></i></span><span>VRChatDraw</span><span class="tutorial-brand-sep">/</span><span>NEKO MANUAL</span></div>
+    <div class="tutorial-top-actions">
+      <span class="tutorial-status"><span class="tutorial-status-dot"></span>猫娘助手在线</span>
+      <button type="button" class="icon-button compact panel-close" id="tutorialClose" aria-label="关闭教程"><i class="iconoir-xmark"></i></button>
+    </div>
+  </div>
+  <div class="tutorial-layout">
+    <aside class="tutorial-rail" aria-label="教程章节导航">
+      <div class="tutorial-rail-intro">
+        <span class="tutorial-rail-kicker">WELCOME, MASTER</span>
+        <h2>猫娘上手手册</h2>
+        <p>先从基础流程开始，熟悉之后就可以自由组合工具喵。</p>
+      </div>
+      <nav class="tutorial-nav">
+        <a class="tutorial-nav-item is-active" href="#tutorialOverview"><span class="tutorial-nav-number">01</span><span><b>认识 VRChatDraw</b><small>它能帮你做什么</small></span></a>
+        <a class="tutorial-nav-item" href="#tutorialStartGuide"><span class="tutorial-nav-number">02</span><span><b>第一次使用</b><small>六步完成第一张图</small></span></a>
+        <a class="tutorial-nav-item" href="#tutorialShortcuts"><span class="tutorial-nav-number">03</span><span><b>快捷键备忘</b><small>像猫爪一样熟练</small></span></a>
+        <a class="tutorial-nav-item" href="#tutorialImport"><span class="tutorial-nav-number">04</span><span><b>图片与处理</b><small>导入、线稿、AI</small></span></a>
+        <a class="tutorial-nav-item" href="#tutorialCanvas"><span class="tutorial-nav-number">05</span><span><b>画布与参数</b><small>调出舒服的手感</small></span></a>
+        <a class="tutorial-nav-item" href="#tutorialSafety"><span class="tutorial-nav-number">06</span><span><b>安全与排错</b><small>遇到问题别慌喵</small></span></a>
+      </nav>
+      <div class="tutorial-rail-tip"><span class="tutorial-rail-tip-icon">♡</span><span><b>猫娘小建议</b><small>第一次换画板，请先做边界预演。</small></span></div>
+    </aside>
+    <div class="tutorial-main">
+      <section class="tutorial-welcome" aria-labelledby="tutorialTitle">
+        <div class="tutorial-welcome-copy">
+          <div class="tutorial-eyebrow"><span class="tutorial-eyebrow-dot"></span><span>NEKO GUIDE</span><span class="tutorial-eyebrow-divider">✦</span><span>详细上手指南</span></div>
+          <h1 id="tutorialTitle">欢迎来到<br /><em>VRChatDraw</em> 喵～</h1>
+          <div class="tutorial-welcome-tags" aria-label="教程特点"><span><i class="iconoir-edit-pencil"></i>逐笔描画</span><span><i class="iconoir-check"></i>安全预演</span><span><i class="iconoir-magic-wand"></i>AI 可选</span></div>
+        </div>
+        <div class="tutorial-welcome-art" aria-hidden="true">
+          <span class="tutorial-welcome-orbit tutorial-welcome-orbit-a"></span><span class="tutorial-welcome-orbit tutorial-welcome-orbit-b"></span><span class="tutorial-welcome-star tutorial-welcome-star-a">✦</span><span class="tutorial-welcome-star tutorial-welcome-star-b">✧</span>
+          <img class="tutorial-catgirl-image tutorial-catgirl-image-dark" src="assets/tutorial-catgirl-dark.png" alt="" loading="lazy" />
+          <img class="tutorial-catgirl-image tutorial-catgirl-image-light" src="assets/tutorial-catgirl-light.png" alt="" loading="lazy" />
+        </div>
+        <div class="tutorial-speech"><span class="tutorial-speech-mark">“</span><span>准备好了吗？让猫娘陪你画出第一张作品吧！</span></div>
+      </section>
+      <div class="tutorial-body">
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialOverview"></span>
+      <h4>喵？VRChatDraw 是做什么的？</h4>
+      <p>主人可以把图片交给我，我会先把画面分析成一条条可以执行的笔画轨迹，再把鼠标移动和落笔动作发送到 VRChat 的画板上，帮主人把喜欢的线稿、插画或图案描出来喵～</p>
+      <p>我不是把图片像素直接贴到画板上，而是按照生成的路径逐笔绘制，所以线条清楚、对比度明显的图片通常更容易得到漂亮结果。彩色图、照片或细节很多的图片也可以尝试开启 AI 预处理，让我先把它整理成更适合描画的线稿；不过 AI 会增加处理时间，还需要在设置里准备好接口配置喵。</p>
+    </div>
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialStartGuide"></span>
+      <h4>第一次使用：跟着猫娘一步一步来喵</h4>
+      <ol>
+        <li><b>导入图片：</b>点击左侧「选择」，或者把一张图片拖进窗口，也可以按 <span class="tutorial-kbd">Ctrl+V</span> 粘贴剪贴板里的图片。导入后，左侧缩略图、中央画布和图片尺寸信息会一起更新喵。</li>
+        <li><b>检查预览：</b>先看看原图是否正确、画面方向是否合适，再用画布工具移动、缩放或裁剪。想只重画局部时，可以使用「区域补画」框选需要的部分喵。</li>
+        <li><b>调整处理参数：</b>线稿太杂可以提高「简化容差」或「模糊大小」；想保留细节则适当调低。复杂彩色图片可以在处理区打开 AI 预处理喵。</li>
+        <li><b>生成笔画：</b>点击「生成笔画」，等待处理完成。这个步骤只负责分析图片并生成轨迹，还不会操作 VRChat 的鼠标；看到“笔画已生成”后，才可以开始绘制喵。</li>
+        <li><b>准备 VRChat：</b>打开 VRChat 并进入目标画板，确认画板可见、窗口没有被其他程序遮住。第一次使用某个画板时，建议先用边界预演确认尺寸和位置喵。</li>
+        <li><b>开始绘制：</b>让 VRChat 处于可以绘画的状态，按 <span class="tutorial-kbd">F9</span> 从头开始。绘制结束后会自动停止；如果中途需要暂停，按 <span class="tutorial-kbd">F10</span> 喵～</li>
+      </ol>
+      <p class="tutorial-note">小提醒喵：图片、裁剪或区域筛选发生变化后，旧笔画可能不再对应当前画面，需要重新生成；单纯调整绘制速度、灵敏度等绘制参数时，通常可以直接使用现有笔画。</p>
+    </div>
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialShortcuts"></span>
+      <h4>快捷键说明：每一只按键都有自己的任务喵</h4>
+      <table class="tutorial-keys">
+        <tr><td><span class="tutorial-kbd">F9</span></td><td>从第一笔开始绘制，会放弃当前暂停断点；适合换图、重新开始或确认画面已经准备好时使用喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">F10</span></td><td>暂停当前绘制并自动抬笔，同时保留可续画的断点。暂停后不要移动鼠标，否则下一次续画的位置可能会偏移喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">F8</span></td><td>从最近一次有效断点继续绘制。只有在 F10 暂停且图片、笔画和区域没有变化时，断点才可以安全使用喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">Shift+F9</span></td><td>边界预演：只把鼠标移动到画作四角，不按下左键、不真正落笔，用来确认画作范围是否适合当前 VRChat 画板喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">R</span></td><td>进入区域补画工具，框选后只重画选中部分喵；正在处理或绘制时按 R 不会生效喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">Ctrl+V</span></td><td>读取剪贴板中的图片并导入工作区；如果剪贴板里只有文字，猫娘不会把文字误当成图片喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">滚轮</span></td><td>缩放中央画布，并以鼠标所在位置作为缩放中心，方便检查细节或定位裁剪区域喵。</td></tr>
+        <tr><td><span class="tutorial-kbd">Esc</span></td><td>退出裁剪工具或区域补画工具，也可以关闭当前弹窗；绘制中的安全停止请优先使用 F10 喵。</td></tr>
+      </table>
+      <p class="tutorial-note">快捷键是全局快捷键喵。开始绘制前请确认目标窗口和 VRChat 画板已经准备好；如果系统提示没有找到目标窗口，请先回到 VRChat 再重试。</p>
+    </div>
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialImport"></span>
+      <h4>图片导入：三种方式都可以交给猫娘喵</h4>
+      <ul>
+        <li><b>选择文件：</b>点击左侧的「选择」打开系统文件选择器，一次挑选一张图片。当前支持 PNG、JPG/JPEG、BMP 和 WebP；图片文件最大 128 MB，像素总数最大 4000 万，太大的图片请先缩小喵。</li>
+        <li><b>拖拽导入：</b>把图片文件拖入 VRChatDraw 窗口即可导入。一次拖入多张时，猫娘会提醒主人一次处理一张，这样不容易把工作区弄乱喵。</li>
+        <li><b>剪贴板导入：</b>先在截图工具、画图软件或浏览器里复制图片，再回到程序按 <span class="tutorial-kbd">Ctrl+V</span>。剪贴板图片会被保存到临时缓存中，之后仍然可以正常生成、裁剪和绘制喵。</li>
+      </ul>
+      <p class="tutorial-note">导入新图片会替换当前工作区的图片和相关笔画。猫娘建议先确认上一张图不再需要，再导入下一张喵。</p>
+    </div>
+    <div class="tutorial-section">
+      <h4>处理区：让线稿变得更适合绘制喵</h4>
+      <ul>
+        <li><b>简化容差：</b>数值调高会合并更多相近细节，笔画更少、处理和绘制更快；数值调低会保留更多细节，但笔画数量和绘制时间也可能增加喵。</li>
+        <li><b>模糊大小：</b>数值调高会先把小噪点和断裂细节平滑掉，适合有颗粒或杂线的图片；数值太高则可能让细线消失，所以要和简化容差一起慢慢调整喵。</li>
+        <li><b>AI 预处理：</b>开启后，程序会先调用设置中的 OpenAI 兼容接口，把彩色图片整理成更适合描画的线稿，再进入普通处理流程。需要配置 API 地址、接口后缀、API Key 和模型；网络或接口失败时会回退到普通线稿流程喵。</li>
+        <li><b>生成结果：</b>处理完成后会显示笔画数量、采样点数量和线稿预览。数量不是越多越好，太多会让绘制变慢，也可能超出 VRChat 画板的实际可用范围喵。</li>
+      </ul>
+    </div>
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialCanvas"></span>
+      <h4>画布预览与工具：先把画面整理舒服喵</h4>
+      <ul>
+        <li><b>原图：</b>查看刚刚导入的图片，适合确认图片方向、裁剪范围和细节是否完整。</li>
+        <li><b>线稿：</b>查看最终会被转换成笔画的预览，建议在按 F9 前重点检查这一层喵。</li>
+        <li><b>对照：</b>把原图和线稿叠在一起，通过拖动分割线比较处理结果，看看重要轮廓有没有被简化掉。</li>
+        <li><b>移动画布：</b>点击手掌工具后可以拖动画布；再次点击会固定画布，避免检查细节时误拖。缩放按钮和「适应」按钮可以快速调整视图喵。</li>
+        <li><b>裁剪：</b>拖动边框或边角，只保留想画的部分，点击确认后会生成新的工作区图片。裁剪会让旧笔画失效，需要重新生成喵。</li>
+        <li><b>区域补画：</b>框选一个区域后，只保留区域内或与区域边界相交的笔画，用来修补局部而不用整张重画。确认后工具栏会显示命中数量，点击清除即可退出喵。</li>
+        <li><b>撤销：</b>撤销最近一次画布移动或缩放视图操作；它不会把已经发送到 VRChat 的鼠标动作倒放回来喵。</li>
+      </ul>
+    </div>
+    <div class="tutorial-section">
+      <h4>绘制参数：不同画板可以这样调教喵</h4>
+      <ul>
+        <li><b>灵敏度：</b>控制生成路径映射到 VRChat 时的整体大小。画出来太大就调低，太小就调高；调得过大可能超出画板，调得过小则细节会挤在一起喵。</li>
+        <li><b>点间隔 / 绘制节奏：</b>控制落笔后采样点之间的时间节奏。更慢通常更稳，但完整绘制时间会变长；更快适合简单图案，不建议一开始就拉到最快喵。</li>
+        <li><b>最大步长：</b>限制鼠标每一步最多移动多少像素。直线可以用较大的步长，转弯处程序会自动放慢；数值太大可能跨过细节，太小则会增加采样点喵。</li>
+        <li><b>抬笔速度：</b>控制从一条笔画移动到下一条笔画时的速度。想看清楚抬笔路线可以调慢，想减少等待时间可以调快；它不会改变已经生成的线条形状喵。</li>
+        <li><b>垂直拉伸：</b>只改变绘制到 VRChat 后的纵向比例，适合修正不同画板的宽高比例；横向大小不会跟着改变喵。</li>
+      </ul>
+    </div>
+    <div class="tutorial-section">
+      <h4>预设、绘制策略和配置档：把好用的手感收藏起来喵</h4>
+      <ul>
+        <li><b>参数预设：</b>在底部「预设」菜单保存当前图片处理、轮廓和绘制参数组合，下次可以快速应用；最多保存 12 组，建议给不同画板或不同画风取容易辨认的名字喵。</li>
+        <li><b>绘制策略：</b>「稳定」会用更保守的节奏，适合长线和容易抖动的画板；「标准」是平衡选项；「快速」适合简单、轮廓清楚的图案。策略主要改变节奏，不会替主人重新设计线条喵。</li>
+        <li><b>世界配置档：</b>可以把一整套绘制参数按 VRChat 世界或画板保存起来。换到不同世界时，先应用对应配置，再检查画板大小和位置，会比每次手动调整更省力喵。</li>
+        <li><b>自动保存：</b>大多数参数修改会自动写入本地配置。若保存失败，程序会提示主人；看到提示后请先确认设置已经恢复，再点击生成喵。</li>
+      </ul>
+    </div>
+    <div class="tutorial-section">
+      <span class="tutorial-section-anchor" id="tutorialSafety"></span>
+      <h4>安全保护：猫娘会努力帮主人避免误画喵</h4>
+      <ul>
+        <li><b>前台保护：</b>绘制中如果检测到主人切换了窗口，程序会安全停止，避免鼠标轨迹跑到聊天框、桌面或其他应用里。</li>
+        <li><b>目标窗口检查：</b>开始绘制、抬笔移动和落笔前都会检查 VRChat 是否仍然是目标窗口；如果前台丢失，会停止并给出提示喵。</li>
+        <li><b>画布尺寸提醒：</b>画作超出桌面范围时，程序会提示尺寸信息，但不会强行拦截相对模式的绘制。若 VRChat 画板本身太小，仍可能画不完整，所以请先使用边界预演喵。</li>
+        <li><b>暂停注意：</b>F10 暂停后请不要移动鼠标。猫娘保存的是当前绘制断点和鼠标位置，主人移动鼠标后再 F8，续画位置可能会产生偏移喵。</li>
+      </ul>
+    </div>
+    <div class="tutorial-section">
+      <h4>遇到问题时，先这样排查喵</h4>
+      <ul>
+        <li><b>按 F9 没有绘制：</b>确认已经导入图片并成功生成笔画，确认 VRChat 画板可见，再看程序是否提示找不到目标窗口。可以先按 Shift+F9 做无落笔边界预演喵。</li>
+        <li><b>线稿太乱：</b>尝试提高简化容差，或适当增加模糊大小；如果原图是彩色或背景复杂，可以配置 AI 预处理后再生成喵。</li>
+        <li><b>画面太小或太大：</b>调整灵敏度；如果是宽高比例不合适，再调整垂直拉伸。每次修改后建议重新生成并先预演边界喵。</li>
+        <li><b>F8 无法继续：</b>可能是没有有效暂停断点，或者图片、裁剪、区域、笔画已经发生变化。此时请按 F9 从头开始，或者重新生成笔画喵。</li>
+        <li><b>AI 失败：</b>检查 API 地址、接口后缀、API Key 和模型是否正确；网络或接口暂时不可用时，程序会尝试使用普通线稿流程，主人也可以先关闭 AI 继续使用喵。</li>
+      </ul>
+      <p class="tutorial-note">猫娘的推荐顺序是：导入图片 → 检查线稿 → 边界预演 → F9 绘制。第一次换画板时请慢一点，安全地确认尺寸后再让猫娘全力开画喵～</p>
+    </div>
+      </div>
+    </div>
+  </div>
+  <div class="tutorial-footer">
+    <label class="tutorial-checkbox">
+      <input type="checkbox" id="tutorialNoShow" />
+      <span>以后不再自动显示教程</span>
+    </label>
+    <span class="tutorial-footer-copy">看完手册就可以开始画画喵</span>
+    <button type="button" class="preset-name-confirm" id="tutorialStart"><i class="iconoir-check"></i><span>知道啦，开始使用喵～</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-head"><i class="iconoir-check-circle-solid" id="toastIcon"></i><span id="toastTitle">操作完成</span></div>
+  <div class="toast-copy" id="toastCopy">界面状态已更新。</div>
+</div>
+
+<div class="help-tooltip" id="helpTooltip" role="tooltip" hidden></div>
+
+<script src="main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "VRChatDraw",
+  "version": "0.1.0",
+  "identifier": "com.shiohiki.vrc-drawing-tool",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "VRChatDraw",
+        "width": 992,
+        "height": 762,
+        "minWidth": 900,
+        "minHeight": 620,
+        "center": true,
+        "theme": "Dark",
+        "decorations": false,
+        "dragDropEnabled": true,
+        "backgroundColor": "#080809",
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

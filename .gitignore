@@ -1,0 +1,23 @@
+# 运行时用户数据（绝非源码，严禁上传）
+config.json
+ui_config.json
+draw_history.json
+stroke_cache/
+crop_cache.*
+*.tmp.*
+*.bak.*
+*.corrupt.*
+
+# 构建产物与缓存
+vrc-tauri/src-tauri/target/
+vrc-tauri/src-tauri/gen/
+node_modules/
+*.log
+VRChatDraw.exe
+
+# 模板护栏（防误装 Tauri CLI 路径下杂物）
+vrc-tauri/.vscode/*.log
+
+# 本地测试铺位
+.ui-check-profile*/
+旧工程/

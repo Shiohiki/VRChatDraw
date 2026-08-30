@@ -1,0 +1,941 @@
+/* ============================================================
+   新手教程 / 主程序工作台主题
+   这份样式只描述教程的布局与组件状态，颜色全部复用 styles.css 的
+   主程序令牌，避免教程变成一套独立的彩色皮肤。
+   ============================================================ */
+
+.tutorial-mask {
+  z-index: 130;
+  background: rgba(0, 0, 0, .62);
+  backdrop-filter: blur(5px) saturate(.8);
+}
+
+.tutorial-modal {
+  z-index: 131;
+  width: min(1140px, calc(100vw - 34px));
+  height: min(860px, calc(100vh - 34px));
+  max-width: 1140px;
+  max-height: 860px;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .58);
+}
+
+.tutorial-modal,
+.tutorial-modal * {
+  box-sizing: border-box;
+}
+
+.tutorial-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 46px;
+  min-width: 0;
+  padding: 0 12px 0 17px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tutorial-brandline,
+.tutorial-top-actions,
+.tutorial-status {
+  display: flex;
+  align-items: center;
+}
+
+.tutorial-brandline {
+  min-width: 0;
+  gap: 9px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  white-space: nowrap;
+}
+
+.tutorial-brand-mark {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.tutorial-brand-mark i {
+  font-size: 13px;
+}
+
+.tutorial-brand-sep {
+  color: var(--muted-2);
+  font-weight: 500;
+}
+
+.tutorial-brandline > span:last-child {
+  color: var(--muted) !important;
+  font-size: inherit;
+  letter-spacing: inherit;
+}
+
+.tutorial-top-actions {
+  gap: 11px;
+}
+
+.tutorial-status {
+  gap: 6px;
+  color: var(--muted-2);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.tutorial-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+
+.tutorial-topbar .panel-close {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  margin-left: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--surface-3);
+  color: var(--muted);
+}
+
+.tutorial-topbar .panel-close:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
+  color: var(--text);
+  transform: none;
+}
+
+.tutorial-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.tutorial-rail {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 12px 14px;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tutorial-rail-intro {
+  padding: 0 7px;
+}
+
+.tutorial-rail-kicker {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.tutorial-rail-intro h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.tutorial-rail-intro p {
+  margin: 8px 0 0;
+  color: var(--muted-2);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.tutorial-nav {
+  display: grid;
+  gap: 4px;
+}
+
+.tutorial-nav-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  padding: 8px 7px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+
+.tutorial-nav-item:hover {
+  border-color: var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.tutorial-nav-item.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.tutorial-nav-number {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  flex: 0 0 26px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--muted-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tutorial-nav-item.is-active .tutorial-nav-number {
+  border-color: var(--accent-bg);
+  background: var(--accent-bg);
+  color: var(--accent-fg);
+}
+
+.tutorial-nav-item > span:last-child,
+.tutorial-nav-item b,
+.tutorial-nav-item small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tutorial-nav-item b {
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.tutorial-nav-item small {
+  margin-top: 3px;
+  color: var(--muted-2);
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.tutorial-nav-item.is-active small {
+  color: var(--muted);
+}
+
+.tutorial-rail-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: auto;
+  padding: 10px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.tutorial-rail-tip-icon {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.tutorial-rail-tip b,
+.tutorial-rail-tip small {
+  display: block;
+}
+
+.tutorial-rail-tip b {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tutorial-rail-tip small {
+  margin-top: 4px;
+  color: var(--muted-2);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.tutorial-main {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.tutorial-welcome {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 0 0 224px;
+  overflow: hidden;
+  padding: 26px 355px 55px 29px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tutorial-welcome::before {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--stage-grid) 1px, transparent 1px), linear-gradient(90deg, var(--stage-grid) 1px, transparent 1px);
+  background-size: 36px 36px;
+  content: "";
+  opacity: .42;
+  pointer-events: none;
+}
+
+.tutorial-welcome-copy {
+  position: relative;
+  z-index: 3;
+  min-width: 0;
+  max-width: 620px;
+}
+
+.tutorial-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.tutorial-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.tutorial-eyebrow-divider {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tutorial-welcome h1 {
+  margin: 29px 0 9px;
+  color: var(--text);
+  font-size: 29px;
+  font-weight: 850;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+}
+
+.tutorial-welcome h1 em {
+  color: var(--text);
+  font-style: normal;
+}
+
+.tutorial-welcome-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 13px;
+}
+
+.tutorial-welcome-tags span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 25px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tutorial-welcome-tags i {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tutorial-welcome-art {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 365px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--stage-bg);
+  border-left: 1px solid var(--line);
+}
+
+.tutorial-welcome-art::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: linear-gradient(90deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 94%, transparent) 14%, color-mix(in srgb, var(--surface) 26%, transparent) 52%, transparent 100%);
+  content: "";
+}
+
+.tutorial-welcome-art::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--stage-bg) 66%, transparent), transparent 42%);
+  content: "";
+}
+
+.tutorial-welcome-art img {
+  position: absolute;
+  z-index: 1;
+  right: -20px;
+  bottom: -188px;
+  width: 370px;
+  max-width: none;
+  height: auto;
+  opacity: .72;
+  filter: grayscale(.46) saturate(.55) contrast(1.02);
+}
+
+.tutorial-welcome-orbit {
+  position: absolute;
+  z-index: 3;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: transparent;
+  opacity: .42;
+}
+
+.tutorial-welcome-orbit-a {
+  top: -72px;
+  right: 78px;
+  width: 210px;
+  height: 210px;
+}
+
+.tutorial-welcome-orbit-b {
+  top: 40px;
+  right: -88px;
+  width: 180px;
+  height: 180px;
+  opacity: .26;
+}
+
+.tutorial-welcome-star {
+  position: absolute;
+  z-index: 4;
+  color: var(--muted);
+  font-size: 15px;
+  opacity: .72;
+}
+
+.tutorial-welcome-star-a {
+  top: 43px;
+  right: 244px;
+}
+
+.tutorial-welcome-star-b {
+  top: 101px;
+  right: 49px;
+  font-size: 11px;
+}
+
+.tutorial-speech {
+  position: absolute;
+  z-index: 5;
+  bottom: 16px;
+  left: 29px;
+  display: flex;
+  align-items: center;
+  max-width: min(600px, calc(100% - 58px));
+  min-height: 30px;
+  gap: 8px;
+  padding: 6px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.tutorial-speech-mark {
+  color: var(--muted);
+  font-family: Georgia, serif;
+  font-size: 21px;
+  line-height: .8;
+}
+
+.tutorial-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 15px;
+  align-items: stretch;
+  overflow-y: auto;
+  padding: 20px 28px 18px;
+  background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.tutorial-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tutorial-body::-webkit-scrollbar-thumb {
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+
+.tutorial-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tutorial-section {
+  position: relative;
+  overflow: visible;
+  min-width: 0;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 17px 17px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: none;
+  counter-increment: tutorial-card;
+}
+
+.tutorial-section::before {
+  position: absolute;
+  top: -1px;
+  right: 26px;
+  left: 26px;
+  height: 1px;
+  background: var(--line-strong);
+  content: "";
+  opacity: .9;
+}
+
+.tutorial-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 20px;
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.tutorial-section h4::before {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border: 2px solid var(--muted);
+  border-radius: 50%;
+  background: transparent;
+  content: "";
+}
+
+.tutorial-section h4::after {
+  display: none;
+}
+
+.tutorial-section p,
+.tutorial-section li,
+.tutorial-section td {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.tutorial-section p {
+  margin: 0 0 9px;
+}
+
+.tutorial-section p:last-child {
+  margin-bottom: 0;
+}
+
+.tutorial-section ol,
+.tutorial-section ul {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.tutorial-section li::marker {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.tutorial-section b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.tutorial-keys {
+  width: 100%;
+  margin: 2px 0 8px;
+  border-collapse: collapse;
+}
+
+.tutorial-keys tr {
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tutorial-keys tr:last-child {
+  border-bottom: 0;
+}
+
+.tutorial-keys td {
+  padding: 6px 8px;
+}
+
+.tutorial-keys td:first-child {
+  width: 118px;
+  white-space: nowrap;
+}
+
+.tutorial-kbd {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.tutorial-note {
+  margin: 10px 0 0;
+  padding: 8px 9px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--muted-2);
+  font-size: 9.5px;
+  line-height: 1.55;
+}
+
+.tutorial-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 60px;
+  gap: 12px;
+  margin-top: 0;
+  padding: 0 18px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tutorial-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tutorial-checkbox:hover {
+  color: var(--text);
+}
+
+.tutorial-checkbox input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent-bg);
+  cursor: pointer;
+}
+
+.tutorial-footer-copy {
+  color: var(--muted-2);
+  font-size: 10px;
+}
+
+.tutorial-footer #tutorialStart {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--accent-bg);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent-fg);
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: none;
+  transition: filter .14s ease, transform .14s ease;
+}
+
+.tutorial-footer #tutorialStart:hover {
+  filter: brightness(.93);
+  transform: none;
+  box-shadow: none;
+}
+
+.tutorial-footer #tutorialStart:active {
+  transform: translateY(1px);
+}
+
+.tutorial-footer #tutorialStart:focus-visible,
+.tutorial-modal .panel-close:focus-visible,
+.tutorial-nav-item:focus-visible,
+.tutorial-checkbox input:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.tutorial-catgirl-image-dark {
+  display: block;
+}
+
+.tutorial-catgirl-image-light {
+  display: none;
+}
+
+[data-theme="light"] .tutorial-catgirl-image-dark {
+  display: none;
+}
+
+[data-theme="light"] .tutorial-catgirl-image-light {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .tutorial-modal {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+  }
+
+  .tutorial-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .tutorial-welcome {
+    padding-right: 300px;
+  }
+
+  .tutorial-welcome-art {
+    width: 315px;
+  }
+
+  .tutorial-welcome-art img {
+    right: -55px;
+  }
+
+}
+
+@media (max-width: 760px) {
+  .tutorial-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorial-rail {
+    display: none;
+  }
+
+  .tutorial-welcome {
+    padding-right: 250px;
+  }
+
+  .tutorial-welcome-art {
+    width: 270px;
+  }
+
+}
+
+@media (max-width: 470px) {
+  .tutorial-modal {
+    width: calc(100vw - 12px);
+    height: calc(100vh - 12px);
+  }
+
+  .tutorial-topbar {
+    padding-left: 10px;
+  }
+
+  .tutorial-brandline {
+    gap: 6px;
+    font-size: 9px;
+  }
+
+  .tutorial-status {
+    display: none;
+  }
+
+  .tutorial-welcome {
+    flex-basis: 210px;
+    padding: 19px 20px 50px;
+  }
+
+  .tutorial-welcome h1 {
+    font-size: 25px;
+  }
+
+  .tutorial-welcome-art {
+    width: 220px;
+    opacity: .58;
+  }
+
+  .tutorial-welcome-copy {
+    max-width: 100%;
+  }
+
+  .tutorial-body {
+    padding: 14px 12px;
+  }
+
+  .tutorial-footer {
+    flex-wrap: wrap;
+    flex-basis: auto;
+    min-height: 60px;
+    padding: 10px 12px;
+  }
+
+  .tutorial-footer-copy {
+    display: none;
+  }
+
+  .tutorial-footer #tutorialStart {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-modal * {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* 教程样式全部复用主程序令牌；下方兼容层用主令牌重新锁定关键属性，
+   防止任何旧变量残留把教程带回渐变、彩色投影或旧的欢迎区背景
+   （styles.css 的旧教程段已删除，兼容层仅此一处）。 */
+.tutorial-welcome {
+  background: var(--surface) !important;
+}
+
+.tutorial-welcome::before {
+  background-image: linear-gradient(var(--stage-grid) 1px, transparent 1px), linear-gradient(90deg, var(--stage-grid) 1px, transparent 1px) !important;
+}
+
+.tutorial-welcome-tags span {
+  background: var(--surface-2) !important;
+}
+
+.tutorial-welcome-art::before {
+  background: linear-gradient(90deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 94%, transparent) 14%, color-mix(in srgb, var(--surface) 26%, transparent) 52%, transparent 100%) !important;
+}
+
+.tutorial-welcome-art::after {
+  background: linear-gradient(0deg, color-mix(in srgb, var(--stage-bg) 66%, transparent), transparent 42%) !important;
+}
+
+.tutorial-speech {
+  background: var(--surface-2) !important;
+  border-color: var(--line-strong) !important;
+}
+
+.tutorial-section {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+}
+
+.tutorial-note {
+  background: var(--surface-2) !important;
+  border-color: var(--line-soft) !important;
+}
+
+.tutorial-rail-tip {
+  background: var(--surface-2) !important;
+  border-color: var(--line) !important;
+}
+
+/* 旧版兼容块中的 !important 只保留布局兼容，不保留紫色品牌色。
+   全部规则已合并至下方单一兼容层（styles.css 的旧教程段已删除）。 */
+.tutorial-brand-mark,
+.tutorial-brand-mark i,
+.tutorial-eyebrow-divider,
+.tutorial-welcome h1 em,
+.tutorial-welcome-tags i,
+.tutorial-welcome-star,
+.tutorial-speech-mark,
+.tutorial-rail-tip-icon {
+  color: var(--muted) !important;
+}
+
+.tutorial-eyebrow-dot {
+  border-color: var(--line-strong) !important;
+  background: var(--muted) !important;
+}
+
+.tutorial-welcome-art img {
+  opacity: .58 !important;
+  filter: grayscale(.64) saturate(.4) contrast(1.02) !important;
+}
+
+.tutorial-footer #tutorialStart {
+  border-color: var(--accent-bg) !important;
+  background: var(--accent-bg) !important;
+  color: var(--accent-fg) !important;
+  box-shadow: none !important;
+}
+
+.tutorial-footer #tutorialStart:hover {
+  border-color: var(--accent-bg) !important;
+  background: var(--accent-bg) !important;
+  box-shadow: none !important;
+}

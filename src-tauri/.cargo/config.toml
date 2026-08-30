@@ -1,0 +1,6 @@
+# 分发目标：单文件零外部运行库。
+# 静态链接 MSVC CRT（vcruntime140 等），消除对 VC++ 2015–2022 Redistributable 的运行时依赖；
+# WebView2 loader 本就由 tauri/webview2-com-sys 在 MSVC 下静态编入。
+# 代价：产物体积略增、每次更改此配置需全量重编。
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

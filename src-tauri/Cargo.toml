@@ -1,0 +1,46 @@
+[package]
+name = "vrchat-draw"
+version = "0.1.0"
+description = "VRChat 绘画脚本"
+authors = ["Shiohiki"]
+edition = "2021"
+rust-version = "1.87"
+
+[lib]
+name = "vrc_tauri_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["image-png"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-clipboard-manager = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+sha2 = "0.10"
+image = { version = "0.24", default-features = false, features = ["png", "jpeg", "bmp", "webp"] }
+reqwest = { version = "0.13", features = ["blocking", "multipart", "json"] }
+# 全局热键使用 tauri-plugin-global-shortcut，无需 global-hotkey crate
+
+[dependencies.windows-sys]
+version = "0.59"
+features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    "Win32_Security_Cryptography",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Graphics_Gdi",
+]
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
+codegen-units = 1
