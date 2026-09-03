@@ -75,7 +75,7 @@ VRChat 自动绘画脚本 —— 把图片转换为可绘制的笔画轨迹，�
 
 ```bash
 # 1. 构建（唯一入口：cargo build --release，不使用 npm / Tauri CLI / 任何前端打包器）
-cd vrc-tauri/src-tauri
+cd src-tauri
 cargo build --release
 
 # 2. 产物
@@ -166,24 +166,24 @@ cargo build --release
 .
 ├── LICENSE                MIT 许可
 ├── README.md              本文档
-└── vrc-tauri/             开发主目录
-    ├── src/               前端（编译期嵌入 exe；改动后必须重新 cargo build）
-    │   ├── index.html     页面结构
-    │   ├── main.js        状态 / 交互 / 命令与事件绑定
-    │   ├── styles.css     双主题、组件、动画
-    │   ├── tutorial.css   新手教程布局（须晚于 styles.css 加载）
-    │   ├── assets/        教程深浅两套插图资源
-    │   └── vendor/        本地 Iconoir 图标
-    └── src-tauri/
-        ├── src/lib.rs     Tauri 入口 + 26 个 commands + 状态一致性闸门
-        ├── src/drawer.rs  SendInput 相对模式绘制引擎（前台保护 / 断点 / 预演）
-        ├── src/ai.rs      AI 预处理（DPAPI Key 加密 / SSRF 校验 / 双重回退）
-        ├── src/gallery.rs 笔画相册（内容哈希双身份 / 视图化查询）
-        ├── src/pipeline/  CV 管线：basic → response → canonical → skeleton
-        │                  → region → trace → optimize → vector_fit（11 文件）
-        ├── Cargo.toml     依赖与 release 配置（opt-level=3 / LTO / strip）
-        ├── tauri.conf.json 窗口与安全配置（无边框 / 深色主题 / CSP）
-        └── .cargo/config.toml  MSVC CRT 静态链接（+crt-static）
+├── src/                   前端（编译期嵌入 exe；改动后必须重新 cargo build）
+│   ├── index.html         页面结构
+│   ├── main.js            状态 / 交互 / 命令与事件绑定
+│   ├── styles.css         双主题、组件、动画
+│   ├── tutorial.css       新手教程布局（须晚于 styles.css 加载）
+│   ├── assets/            教程深浅两套插图资源
+│   └── vendor/            本地 Iconoir 图标
+└── src-tauri/             Rust 后端（Tauri 2）
+    ├── src/lib.rs         Tauri 入口 + 26 个 commands + 状态一致性闸门
+    ├── src/drawer.rs      SendInput 相对模式绘制引擎（前台保护 / 断点 / 预演）
+    ├── src/ai.rs          AI 预处理（DPAPI Key 加密 / SSRF 校验 / 双重回退）
+    ├── src/gallery.rs     笔画相册（内容哈希双身份 / 视图化查询）
+    ├── src/pipeline/      CV 管线：basic → response → canonical → skeleton
+    │                      → region → trace → optimize → vector_fit（11 文件）
+    ├── Cargo.toml         依赖与 release 配置（opt-level=3 / LTO / strip）
+    ├── tauri.conf.json    窗口与安全配置（无边框 / 深色主题 / CSP）
+    ├── capabilities/      权限（core:default + 窗口控制 + opener）
+    └── .cargo/config.toml  MSVC CRT 静态链接（+crt-static）
 ```
 
 ---
@@ -203,7 +203,7 @@ cargo build --release
 ## 构建与验证
 
 ```bash
-cd vrc-tauri/src-tauri
+cd src-tauri
 
 # 前端语法检查（唯一需要 Node.js 的环节）
 node --check ../src/main.js

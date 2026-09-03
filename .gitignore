@@ -9,14 +9,14 @@ crop_cache.*
 *.corrupt.*
 
 # 构建产物与缓存
-vrc-tauri/src-tauri/target/
-vrc-tauri/src-tauri/gen/
+src-tauri/target/
+src-tauri/gen/
 node_modules/
 *.log
 VRChatDraw.exe
 
 # 模板护栏（防误装 Tauri CLI 路径下杂物）
-vrc-tauri/.vscode/*.log
+src-tauri/.vscode/*.log
 
 # 本地测试铺位
 .ui-check-profile*/
